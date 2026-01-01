@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../components/Logo';
+import useAuth from '../hooks/useAuth';
 
 const Home = () => {
     const [scrolled, setScrolled] = useState(false);
+    const { user, logout } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -31,15 +33,26 @@ const Home = () => {
                             ))}
                         </div>
                         <div className="flex items-center space-x-4">
-                            <Link to="/login" className={`text-sm font-semibold transition-all ${scrolled ? 'text-white hover:text-gray-200' : 'text-brand-primary hover:text-brand-secondary'}`}>
-                                Sign In
-                            </Link>
-                            <Link
-                                to="/signup"
-                                className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all transform hover:scale-105 shadow-lg ${scrolled ? 'bg-white text-brand-primary hover:bg-gray-100' : 'bg-brand-primary text-white hover:bg-brand-primary/90'}`}
-                            >
-                                Get Started
-                            </Link>
+                            {user ? (
+                                <Link
+                                    to="/dashboard"
+                                    className={`px-8 py-2.5 rounded-full text-sm font-bold transition-all transform hover:scale-105 shadow-lg ${scrolled ? 'bg-white text-brand-primary hover:bg-gray-100' : 'bg-brand-primary text-white hover:bg-brand-primary/90'}`}
+                                >
+                                    Go to Dashboard
+                                </Link>
+                            ) : (
+                                <>
+                                    <Link to="/login" className={`text-sm font-semibold transition-all ${scrolled ? 'text-white hover:text-gray-200' : 'text-brand-primary hover:text-brand-secondary'}`}>
+                                        Sign In
+                                    </Link>
+                                    <Link
+                                        to="/signup"
+                                        className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all transform hover:scale-105 shadow-lg ${scrolled ? 'bg-white text-brand-primary hover:bg-gray-100' : 'bg-brand-primary text-white hover:bg-brand-primary/90'}`}
+                                    >
+                                        Get Started
+                                    </Link>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,3 @@
-import React from 'react';
-
 const Logo = ({ className = "", variant = "dark" }) => {
     // variant 'dark' is for light backgrounds (uses Brand Primary - Deep Navy)
     // variant 'light' is for dark/blue backgrounds (uses Brand Light - Light Gray)

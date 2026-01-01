@@ -1,8 +1,28 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
+import useAuth from '../hooks/useAuth';
+import { toast } from 'sonner';
 
 const Login = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const { login, loading } = useAuth();
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!email || !password) {
+            toast.error('Please enter email and password');
+            return;
+        }
+
+        const { error } = await login(email, password);
+        if (!error) {
+            navigate('/');
+        }
+    };
+
     return (
         <div className="flex min-h-screen w-full bg-white">
             {/* Left Side - Hero/Branding */}
@@ -61,7 +81,6 @@ const Login = () => {
                                 Sign in with Apple
                             </button>
                         </div>
-
                         <div className="relative mb-6">
                             <div className="absolute inset-0 flex items-center">
                                 <div className="w-full border-t border-gray-300"></div>
@@ -71,12 +90,12 @@ const Login = () => {
                             </div>
                         </div>
 
-                        <form action="#" method="POST" className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Email */}
                             <div>
                                 <label htmlFor="email" className="block text-sm font-bold text-gray-700">Email address</label>
                                 <div className="mt-1">
-                                    <input id="email" name="email" type="email" placeholder="name@work-email.com" autoComplete="email" required className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-gray-900 transition-all duration-200" />
+                                    <input value={email} onChange={(e) => setEmail(e.target.value)} id="email" name="email" type="email" placeholder="name@work-email.com" autoComplete="email" required className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-gray-900 transition-all duration-200" />
                                 </div>
                             </div>
 
@@ -84,7 +103,7 @@ const Login = () => {
                             <div>
                                 <label htmlFor="password" className="block text-sm font-bold text-gray-700">Password</label>
                                 <div className="mt-1">
-                                    <input id="password" name="password" type="password" placeholder="YOUR PASSWORD" autoComplete="current-password" required className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-gray-900 transition-all duration-200" />
+                                    <input value={password} onChange={(e) => setPassword(e.target.value)} id="password" name="password" type="password" placeholder="YOUR PASSWORD" autoComplete="current-password" required className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-gray-900 transition-all duration-200" />
                                 </div>
                             </div>
 
@@ -101,8 +120,8 @@ const Login = () => {
 
                             {/* Submit */}
                             <div>
-                                <button type="submit" className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-bold text-white bg-brand-primary hover:bg-brand-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary transition-colors duration-200">
-                                    Sign In
+                                <button type="submit" disabled={loading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-bold text-white bg-brand-primary hover:bg-brand-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    {loading ? 'Signing in...' : 'Sign In'}
                                 </button>
                             </div>
                         </form>
