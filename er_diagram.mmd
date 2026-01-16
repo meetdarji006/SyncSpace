@@ -1,0 +1,52 @@
+erDiagram
+    users ||--|| profiles : "has"
+
+    profiles ||--o{ organizations : "creates"
+    profiles ||--o{ organization_members : "is_member_of"
+    profiles ||--o{ channels : "creates"
+    profiles ||--o{ messages : "sends"
+    profiles ||--o{ direct_messages : "sends_or_receives"
+
+    organizations ||--o{ organization_members : "has_members"
+    organizations ||--o{ channels : "contains"
+
+    channels ||--o{ channels : "has_subchannels"
+    channels ||--o{ messages : "contains_history"
+
+    %% Entities Definition
+    users {
+        uuid id
+    }
+    profiles {
+        uuid id
+        text name
+        text bio
+        text avatar_url
+        text college_name
+    }
+    organizations {
+        uuid id
+        text name
+        text description
+        boolean is_public
+    }
+    organization_members {
+        uuid id
+        enum role
+        timestamp joined_at
+    }
+    channels {
+        uuid id
+        text name
+        uuid parent_channel_id
+    }
+    messages {
+        uuid id
+        text content
+        text attachment_type
+    }
+    direct_messages {
+        uuid id
+        text content
+        text attachment_type
+    }

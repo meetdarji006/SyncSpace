@@ -17,10 +17,13 @@
   "type": "commonjs",
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",
+    "@types/multer": "^2.0.0",
+    "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.38.3",
     "express": "^5.2.1",
+    "multer": "^2.0.2",
     "postgres": "^3.4.5",
     "socket.io": "^4.8.1"
   },

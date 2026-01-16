@@ -103,7 +103,7 @@ const Login = () => {
                             <div>
                                 <label htmlFor="password" className="block text-sm font-bold text-gray-700">Password</label>
                                 <div className="mt-1">
-                                    <input value={password} onChange={(e) => setPassword(e.target.value)} id="password" name="password" type="password" placeholder="YOUR PASSWORD" autoComplete="current-password" required className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-gray-900 transition-all duration-200" />
+                                    <input value={password} onChange={(e) => setPassword(e.target.value)} id="password" name="password" type="password" placeholder="•••••••••" autoComplete="current-password" required className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-gray-900 transition-all duration-200" />
                                 </div>
                             </div>
 

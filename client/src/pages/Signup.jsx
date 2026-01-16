@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 const Signup = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [name,setName] = useState('');
 
     const { register, loading } = useAuth();
     const navigate = useNavigate();
@@ -14,12 +15,12 @@ const Signup = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!email || !password) {
+        if (!email || !password || !name) {
             toast.error('Please enter email and password');
             return;
         }
 
-        const { data, error } = await register(email, password);
+        const { data, error } = await register(email, password,name);
         if (!error) {
             // If Supabase returns a session, the user is logged in (Confirmation is OFF)
             // If no session, they must verify their email (Confirmation is ON)
@@ -78,7 +79,7 @@ const Signup = () => {
                             <div>
                                 <label htmlFor="name" className="block text-sm font-bold text-gray-700">Full Name</label>
                                 <div className="mt-1">
-                                    <input id="name" name="name" type="text" placeholder="John Doe" autoComplete="name" required className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-gray-900 transition-all duration-200" />
+                                    <input value={name} onChange={(e) => setName(e.target.value)} id="name" name="name" type="text" placeholder="John Doe" autoComplete="name" required className="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-gray-900 transition-all duration-200" />
                                 </div>
                             </div>
 

@@ -1,19 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
-import supabase from '../config/supabase';
+import api from '../utils/api';
 import { toast } from 'sonner';
 import Logo from '../components/Logo';
 
 const SelectOrganization = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
-    
+
     const [isCreating, setIsCreating] = useState(false);
     const [isJoining, setIsJoining] = useState(false);
     const [orgName, setOrgName] = useState('');
+    const [orgDescription, setOrgDescription] = useState(''); // Added description
     const [inviteCode, setInviteCode] = useState('');
     const [loading, setLoading] = useState(false);
+    const [organizations, setOrganizations] = useState([]);
+
+    useEffect(() => {
+        if (user) {
+            fetchOrganizations();
+        }
+    }, [user]);
+
+    const fetchOrganizations = async () => {
+        try {
+            const response = await api.get('/organizations', {
+                params: { userId: user.id }
+            });
+            setOrganizations(response.data);
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to load organizations");
+        }
+    }
 
     const handleCreateOrg = async (e) => {
         e.preventDefault();
@@ -21,31 +41,17 @@ const SelectOrganization = () => {
 
         setLoading(true);
         try {
-            // 1. Create the organization
-            const { data: org, error: orgError } = await supabase
-                .from('organizations')
-                .insert([{ name: orgName }])
-                .select()
-                .single();
-
-            if (orgError) throw orgError;
-
-            // 2. Add the user as an owner/member
-            const { error: memberError } = await supabase
-                .from('organization_members')
-                .insert([{
-                    organization_id: org.id,
-                    user_id: user.id,
-                    role: 'owner'
-                }]);
-
-            if (memberError) throw memberError;
+            const response = await api.post('/organizations', {
+                name: orgName,
+                description: orgDescription,
+                userId: user.id
+            });
 
             toast.success('Organization created successfully!');
-            await refreshOrganizations();
-            navigate('/dashboard');
+            navigate('/dashboard', { state: { organizationId: response.data.id } });
         } catch (error) {
-            toast.error(error.message);
+            console.error(error);
+            toast.error(error.response?.data?.error || "Failed to create organization");
         } finally {
             setLoading(false);
         }
@@ -57,35 +63,25 @@ const SelectOrganization = () => {
 
         setLoading(true);
         try {
-            // This is a simplified join logic assuming invite code is the org ID for now
-            // In a real app, you'd lookup the invite code or verify it
-            const { data: org, error: orgError } = await supabase
-                .from('organizations')
-                .select('id')
-                .eq('id', inviteCode)
-                .single();
-
-            if (orgError) throw new Error('Invalid invite code or organization not found');
-
-            const { error: memberError } = await supabase
-                .from('organization_members')
-                .insert([{
-                    organization_id: org.id,
-                    user_id: user.id,
-                    role: 'member'
-                }]);
-
-            if (memberError) throw memberError;
+            // Assuming inviteCode is the organization ID for now
+            const response = await api.post('/organizations/join', {
+                organizationId: inviteCode,
+                userId: user.id
+            });
 
             toast.success('Joined organization successfully!');
-            await refreshOrganizations();
-            navigate('/dashboard');
+            navigate('/dashboard', { state: { organizationId: inviteCode } });
         } catch (error) {
-            toast.error(error.message);
+            console.error(error);
+            toast.error(error.response?.data?.error || "Failed to join organization");
         } finally {
             setLoading(false);
         }
     };
+
+    const handleSelectOrg = (orgId) => {
+        navigate('/dashboard', { state: { organizationId: orgId } });
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
@@ -93,12 +89,33 @@ const SelectOrganization = () => {
                 <div className="text-center mb-8">
                     <Logo className="w-12 h-12 text-brand-primary mx-auto mb-4" />
                     <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Welcome to SyncSpace</h1>
-                    <p className="mt-2 text-gray-600">To get started, create a new organization or join an existing one.</p>
+                    <p className="mt-2 text-gray-600">To get started, create a new organization, join an existing one, or select one below.</p>
                 </div>
 
                 <div className="space-y-4">
                     {!isCreating && !isJoining ? (
                         <>
+                            {organizations.length > 0 && (
+                                <div className="mb-6 space-y-2">
+                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Your Organizations</p>
+                                    {organizations.map(org => (
+                                        <button
+                                            key={org.id}
+                                            onClick={() => handleSelectOrg(org.id)}
+                                            className="w-full bg-white p-4 rounded-xl border border-gray-200 hover:border-brand-primary/50 hover:shadow-md transition-all text-left flex items-center justify-between group"
+                                        >
+                                            <div>
+                                                <h3 className="font-bold text-gray-900 group-hover:text-brand-primary transition-colors">{org.name}</h3>
+                                                {org.description && <p className="text-xs text-gray-500">{org.description}</p>}
+                                            </div>
+                                            <svg className="w-5 h-5 text-gray-300 group-hover:text-brand-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
                             <button
                                 onClick={() => setIsCreating(true)}
                                 className="w-full bg-white p-6 rounded-2xl border-2 border-transparent hover:border-brand-primary/20 shadow-sm hover:shadow-md transition-all text-left group"
@@ -148,6 +165,16 @@ const SelectOrganization = () => {
                                         required
                                     />
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Description (Optional)</label>
+                                    <input
+                                        type="text"
+                                        value={orgDescription}
+                                        onChange={(e) => setOrgDescription(e.target.value)}
+                                        placeholder="What's this organization about?"
+                                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
+                                    />
+                                </div>
                                 <div className="flex gap-3 pt-2">
                                     <button
                                         type="button"
@@ -171,16 +198,16 @@ const SelectOrganization = () => {
                             <h3 className="text-xl font-bold mb-4">Join Organization</h3>
                             <form onSubmit={handleJoinOrg} className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Invite Code</label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Invite Code (Organization ID)</label>
                                     <input
                                         type="text"
                                         value={inviteCode}
                                         onChange={(e) => setInviteCode(e.target.value)}
-                                        placeholder="Enter your invite code"
+                                        placeholder="Enter Organization ID"
                                         className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"
                                         required
                                     />
-                                    <p className="mt-2 text-xs text-gray-400">Ask your organization administrator for the code.</p>
+                                    <p className="mt-2 text-xs text-gray-400">Ask your organization administrator for the ID.</p>
                                 </div>
                                 <div className="flex gap-3 pt-2">
                                     <button

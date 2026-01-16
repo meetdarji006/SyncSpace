@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyncSpace - Data Flow Diagrams</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background-color: #ffffff;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        h2 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 50px;
+            color: #34495e;
+        }
+        .description {
+            max-width: 800px;
+            margin: 0 auto 30px auto;
+            text-align: center;
+            color: #666;
+            line-height: 1.6;
+        }
+        .diagram-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .footer {
+            margin-top: 80px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #999;
+        }
+        @media print {
+            body { padding: 20px; }
+            .diagram-container { border: none; background: none; }
+            h2 { page-break-before: always; }
+            h2:first-of-type { page-break-before: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>SyncSpace Project</h1>
+    <p class="description">Data Flow Diagrams (DFD) visualizing the information flow within the SyncSpace real-time collaboration platform.</p>
+
+    <!-- Level 0 DFD -->
+    <h2>Level 0: Context Diagram</h2>
+    <p class="description">Overview of the system boundaries and its interaction with external entities (User, Cloudinary).</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+            graph TD
+            User[User]
+            Cloudinary[External: Cloudinary]
+            System(SyncSpace System)
+
+            User -- "Credentials, Profile Data" --> System
+            User -- "Message Content, Call Signals" --> System
+            User -- "File Attachments" --> System
+
+            System -- "Auth Token, User Data" --> User
+            System -- "Real-time Messages, Notifications" --> User
+            System -- "Video/Audio Stream Signals" --> User
+
+            System -- "File Data" --> Cloudinary
+            Cloudinary -- "File URL" --> System
+
+            style User fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+            style Cloudinary fill:#fff3e0,stroke:#e65100,stroke-width:2px
+            style System fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+        </div>
+    </div>
+
+    <!-- Level 1 DFD -->
+    <h2>Level 1: Detailed Data Flow</h2>
+    <p class="description">Detailed breakdown of the system subsystems, including Authentication, Messaging, and Media Handling.</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+            graph TD
+            %% Entities
+            User[User]
+            Cloudinary[External: Cloudinary]
+
+            %% Processes
+            P1(1.0 Authentication)
+            P2(2.0 Organization Mgmt)
+            P3(3.0 Channel Mgmt)
+            P4(4.0 Messaging System)
+            P5(5.0 File Upload)
+            P6(6.0 Video Signaling)
+
+            %% Data Stores
+            D1[(Users / Profiles)]
+            D2[(Organizations)]
+            D3[(Channels)]
+            D4[(Messages / DMs)]
+
+            %% Flows
+
+            %% Auth
+            User -- "Login/Signup Info" --> P1
+            P1 -- "Verify/Create" --> D1
+            D1 -- "User Data" --> P1
+            P1 -- "Auth Token" --> User
+
+            %% Org Mgmt
+            User -- "Create/Join Org" --> P2
+            P2 -- "Save Org Info" --> D2
+            P2 -- "Add Member" --> D2
+            D2 -- "Org Data" --> P2
+            P2 -- "Org List" --> User
+
+            %% Channel Mgmt
+            User -- "Create Channel" --> P3
+            P3 -- "Save Channel" --> D3
+            D3 -- "Channel Details" --> P3
+            P3 -- "Channel List" --> User
+            D2 -.-> P3
+
+            %% Messaging
+            User -- "Send Message" --> P4
+            P4 -- "Save Message" --> D4
+            D4 -- "History" --> P4
+            P4 -- "Broadcast Message" --> User
+
+            %% File Upload
+            User -- "Upload File" --> P5
+            P5 -- "File Buffer" --> Cloudinary
+            Cloudinary -- "Secure URL" --> P5
+            P5 -- "Attachment URL" --> P4
+
+            %% Video
+            User -- "Join Call / Signals" --> P6
+            P6 -- "Route Signal" --> User
+
+            %% Styling
+            style User fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+            style Cloudinary fill:#fff3e0,stroke:#e65100,stroke-width:2px
+
+            style P1 fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+            style P2 fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+            style P3 fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+            style P4 fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+            style P5 fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+            style P6 fill:#fff9c4,stroke:#fbc02d,stroke-width:2px
+
+            style D1 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+            style D2 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+            style D3 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+            style D4 fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+        </div>
+    </div>
+
+    <!-- Entity Relationship Diagram -->
+    <h2>Entity Relationship Diagram (ERD)</h2>
+    <p class="description">Visual representation of the database schema, including tables (Entities) and their relationships.</p>
+    <div class="diagram-container">
+        <div class="mermaid">
+            erDiagram
+                users ||--|| profiles : "has"
+
+                profiles ||--o{ organizations : "creates"
+                profiles ||--o{ organization_members : "is_member_of"
+                profiles ||--o{ channels : "creates"
+                profiles ||--o{ messages : "sends"
+                profiles ||--o{ direct_messages : "sends_or_receives"
+
+                organizations ||--o{ organization_members : "has_members"
+                organizations ||--o{ channels : "contains"
+
+                channels ||--o{ channels : "has_subchannels"
+                channels ||--o{ messages : "contains_history"
+
+                %% Entities Definition
+                users {
+                    uuid id
+                }
+                profiles {
+                    uuid id
+                    text name
+                    text bio
+                    text avatar_url
+                    text college_name
+                }
+                organizations {
+                    uuid id
+                    text name
+                    text description
+                    boolean is_public
+                }
+                organization_members {
+                    uuid id
+                    enum role
+                    timestamp joined_at
+                }
+                channels {
+                    uuid id
+                    text name
+                    uuid parent_channel_id
+                }
+                messages {
+                    uuid id
+                    text content
+                    text attachment_type
+                }
+                direct_messages {
+                    uuid id
+                    text content
+                    text attachment_type
+                }
+        </div>
+    </div>
+
+    <div class="footer">
+        Generated for SyncSpace Project Documentation
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: { curve: 'basis' }
+        });
+    </script>
+</body>
+</html>

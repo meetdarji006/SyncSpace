@@ -1,7 +1,13 @@
-import { pgTable, text, timestamp, uuid, boolean, pgEnum, AnyPgColumn } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, uuid, boolean, pgEnum, AnyPgColumn, pgSchema } from "drizzle-orm/pg-core";
+
+const authSchema = pgSchema("auth");
+
+const users = authSchema.table("users", {
+    id: uuid("id").primaryKey(),
+});
 
 export const profiles = pgTable("profiles", {
-    id: uuid("id").primaryKey(), // auth.users.id
+    id: uuid("id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
     name: text("name"),
     bio: text("bio"),
     avatarUrl: text("avatar_url"),
@@ -19,7 +25,7 @@ export const organizations = pgTable("organizations", {
 
     // creator / owner
     createdBy: uuid("created_by")
-        .references(() => profiles.id)
+        .references(() => profiles.id, { onDelete: "cascade" })
         .notNull(),
 
     // optional org settings
@@ -79,7 +85,7 @@ export const channels = pgTable("channels", {
     name: text("name").notNull(),
 
     createdBy: uuid("created_by")
-        .references(() => profiles.id)
+        .references(() => profiles.id, { onDelete: "cascade" })
         .notNull(),
 
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -100,7 +106,35 @@ export const messages = pgTable("messages", {
         .references(() => profiles.id, { onDelete: "cascade" })
         .notNull(),
 
+
     content: text("content"),
+
+    attachmentUrl: text("attachment_url"),
+    attachmentType: text("attachment_type"), // 'image', 'video', 'file'
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+        .defaultNow()
+        .notNull(),
+});
+
+export const directMessages = pgTable("direct_messages", {
+    id: uuid("id")
+        .defaultRandom()
+        .primaryKey(),
+
+    senderId: uuid("sender_id")
+        .references(() => profiles.id, { onDelete: "cascade" })
+        .notNull(),
+
+    receiverId: uuid("receiver_id")
+        .references(() => profiles.id, { onDelete: "cascade" })
+        .notNull(),
+
+
+    content: text("content"),
+
+    attachmentUrl: text("attachment_url"),
+    attachmentType: text("attachment_type"),
 
     createdAt: timestamp("created_at", { withTimezone: true })
         .defaultNow()

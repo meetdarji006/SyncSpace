@@ -8,6 +8,20 @@
       "when": 1766812108420,
       "tag": "0000_bizarre_lightspeed",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1767352916277,
+      "tag": "0001_spotty_sharon_ventura",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768277739768,
+      "tag": "0002_free_vanisher",
+      "breakpoints": true
     }
   ]
 }
